@@ -119,11 +119,11 @@ def compute_gps_position(robot, mode):
         return None  # no fix
     elif mode == "drift":
         # Accumulate slowly-growing drift
-        if not hasattr(robot, "_drift_acc"):
-            robot._drift_acc = [0.0, 0.0]
-        robot._drift_acc[0] += (random.random() * 0.8 - 0.4)
-        robot._drift_acc[1] += (random.random() * 0.8 - 0.4)
-        return robot.true_x + robot._drift_acc[0], robot.true_y + robot._drift_acc[1]
+        if not hasattr(robot, "_drift_accum"):
+            robot._drift_accum = [0.0, 0.0]
+        robot._drift_accum[0] += (random.random() * 0.8 - 0.4)
+        robot._drift_accum[1] += (random.random() * 0.8 - 0.4)
+        return robot.true_x + robot._drift_accum[0], robot.true_y + robot._drift_accum[1]
     return robot.true_x, robot.true_y
 
 def compute_confidence(mode):
