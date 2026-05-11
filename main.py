@@ -415,36 +415,38 @@ def main():
         confidence = compute_confidence(gps_mode)
         conf_col = (52, 255, 120) if confidence >= 80 else (255,200,60) if confidence >= 40 else (255,80,80)
 
-        # Left column
+        # Left column — status telemetry
+        x_left = 10
         y = 8
         lbl = FONT_SMALL.render(f"GPS:   {gps_mode.upper()}", True, (255,80,80) if gps_mode=="spoofed" else (255,200,60) if gps_mode=="jammed" else (52,255,120))
-        hud_surf.blit(lbl, (10, y)); y += 20
+        hud_surf.blit(lbl, (x_left, y)); y += 20
 
         lbl = FONT_SMALL.render(f"TRUE:  ({robot.true_x:5.0f}, {robot.true_y:5.0f})", True, (0,200,255))
-        hud_surf.blit(lbl, (10, y)); y += 20
+        hud_surf.blit(lbl, (x_left, y)); y += 20
 
         if gps_pos:
             lbl = FONT_SMALL.render(f"GPS:   ({gps_pos[0]:5.0f}, {gps_pos[1]:5.0f})", True, (255,80,80))
         else:
             lbl = FONT_SMALL.render("GPS:   NO FIX — JAMMED", True, (255,80,80))
-        hud_surf.blit(lbl, (10, y)); y += 20
+        hud_surf.blit(lbl, (x_left, y)); y += 20
 
         lbl = FONT_SMALL.render(f"NAV ERROR: {nav_error:.0f} px", True, (255,200,60) if nav_error > 50 else (160,200,255))
-        hud_surf.blit(lbl, (10, y)); y += 20
+        hud_surf.blit(lbl, (x_left, y)); y += 20
 
         lbl = FONT_SMALL.render(f"TARGET WP: {current_wp+1}/{len(path) if path else 0}", True, HUD_FG)
-        hud_surf.blit(lbl, (10, y)); y += 20
+        hud_surf.blit(lbl, (x_left, y)); y += 20
 
         lbl = FONT_SMALL.render(f"REPLAN:  {'ACTIVE' if auto_pilot else 'IDLE'}  every {REPLAN_INTERVAL:.0f}s", True,
                                 (52,255,120) if auto_pilot else (120,120,140))
-        hud_surf.blit(lbl, (10, y)); y += 20
+        hud_surf.blit(lbl, (x_left, y)); y += 20
 
-        # Center column — confidence
+        # Center — confidence meter
+        conf_col = (52,255,120) if confidence >= 80 else (255,200,60) if confidence >= 40 else (255,80,80)
         lbl = FONT_BIG.render(f"CONFIDENCE: {confidence}%", True, conf_col)
         hud_surf.blit(lbl, (W//2 - lbl.get_width()//2, 8))
 
         # Right column — event log (scrolling)
-        event_log.draw(hud_surf, FONT_SMALL, 8)
+        event_log.draw(hud_surf, FONT_SMALL, 280, 8)
 
         screen.blit(hud_surf, (0, H))
 
