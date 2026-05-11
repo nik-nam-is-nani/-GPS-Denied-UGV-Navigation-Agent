@@ -79,16 +79,20 @@ class UGVNavEnv(gym.Env):
 
         self.heading = self.rng.uniform(0, 2 * np.pi)
 
-        margin = 50
+        margin = max(10, self.map_size // 4)
+        min_pos = margin
+        max_pos = self.map_size - margin
+
         self.goal = np.array([
-            self.rng.uniform(margin, self.map_size - margin),
-            self.rng.uniform(margin, self.map_size - margin)
+            self.rng.uniform(min_pos, max_pos),
+            self.rng.uniform(min_pos, max_pos)
         ])
 
-        while np.linalg.norm(self.pos - self.goal) < 80:
+        min_dist = self.map_size // 3
+        while np.linalg.norm(self.pos - self.goal) < min_dist:
             self.goal = np.array([
-                self.rng.uniform(margin, self.map_size - margin),
-                self.rng.uniform(margin, self.map_size - margin)
+                self.rng.uniform(min_pos, max_pos),
+                self.rng.uniform(min_pos, max_pos)
             ])
 
         self.step_count = 0
