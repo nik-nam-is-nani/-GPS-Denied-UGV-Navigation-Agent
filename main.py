@@ -336,7 +336,10 @@ def main():
         robot.update(throttle, steer, grid)
 
         # ── Navigation error (distance between true pos and GPS-reported pos) ────
-        nav_error = math.hypot(robot.true_x - gps_pos[0], robot.true_y - gps_pos[1]) if gps_pos else float('inf')
+        if gps_pos:
+            nav_error = math.hypot(robot.true_x - gps_pos[0], robot.true_y - gps_pos[1])
+        else:
+            nav_error = float('inf')
 
         # Collision detection (ray-based proximity warning)
         rays = robot.cast_rays(grid, num_rays=6, max_dist=80)
