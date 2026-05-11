@@ -211,6 +211,17 @@ def main():
         screen.blit(map_surf, (0, 0))
         screen.blit(trl_surf, (0, 0))
 
+        # Draw planned A* path
+        if path and current_wp < len(path):
+            path_surf.fill((0,0,0,0))
+            points = [(int(px), int(py)) for px, py in path]
+            if len(points) >= 2:
+                pygame.draw.lines(path_surf, (255, 200, 50, 180), False, points, 3)
+            # highlight current waypoint
+            wx, wy = points[current_wp]
+            pygame.draw.circle(path_surf, (255, 255, 255), (wx, wy), 6, 2)
+            screen.blit(path_surf, (0, 0))
+
         # Rays
         ray_surf.fill((0,0,0,0))
         for hx, hy, dist in rays:
