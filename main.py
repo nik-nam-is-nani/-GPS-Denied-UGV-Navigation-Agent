@@ -366,6 +366,10 @@ def main():
         # Screen shake offset
         ox, oy = shake, shake
 
+        # Clear transient overlays each frame
+        true_surf.fill((0,0,0,0))
+        gps_surf.fill((0,0,0,0))
+
         # True trail (cyan)
         if len(robot.true_trail) >= 2:
             pts = [(int(p[0])+ox, int(p[1])+oy) for p in robot.true_trail[-120:]]
