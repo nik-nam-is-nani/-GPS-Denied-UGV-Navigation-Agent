@@ -255,16 +255,17 @@ def main():
                     # Full reset
                     robot = Robot(start_px, start_py, heading=0.0)
                     robot._spoof_offset = list(SPOOF_OFFSET)
-                    auto_pilot = False
-                    path = []
-                    current_wp = 0
-                    gps_pos = compute_gps_position(robot, gps_mode)
+                    auto_pilot   = False
+                    path         = []
+                    current_wp   = 0
+                    spoof_alerted = False
+                    gps_pos      = compute_gps_position(robot, gps_mode)
                     path_surf.fill((0,0,0,0))
                     divert_surf.fill((0,0,0,0))
                     true_surf.fill((0,0,0,0))
                     gps_surf.fill((0,0,0,0))
-                    last_replan = 0.0
-                    event_log = EventLog(max_entries=10)
+                    last_replan  = 0.0
+                    event_log    = EventLog(max_entries=10)
                     event_log.start_time = time.time()
                     event_log.log("SIMULATION RESET")
             if ev.type == pygame.MOUSEBUTTONDOWN and ev.button == 1:
@@ -354,8 +355,9 @@ def main():
                     math.hypot(path[i][0]-ideal_path[i][0], path[i][1]-ideal_path[i][1]) > 40
                     for i in range(min_len)
                 )
-                if diverges:
+                if diverges and not spoof_alerted:
                     event_log.log(f"NAV ERROR: {nav_error:.0f}px — PATH CORRUPTED")
+                    spoof_alerted = True
 
         # ── Draw ─────────────────────────────────────────────────────────────────
         screen.fill(BG)
