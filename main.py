@@ -286,7 +286,6 @@ def main():
                             event_log.log("CANNOT PLAN — GPS JAMMED (NO FIX)")
 
         # ── Compute current GPS fix ─────────────────────────────────────────────
-        prev_gps = gps_pos
         gps_pos  = compute_gps_position(robot, gps_mode)
 
         # ── Dynamic replanning ───────────────────────────────────────────────────
