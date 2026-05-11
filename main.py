@@ -119,8 +119,6 @@ def compute_gps_position(robot, mode):
         return None  # no fix
     elif mode == "drift":
         # Accumulate slowly-growing drift
-        if not hasattr(robot, "_drift_accum"):
-            robot._drift_accum = [0.0, 0.0]
         robot._drift_accum[0] += (random.random() * 0.8 - 0.4)
         robot._drift_accum[1] += (random.random() * 0.8 - 0.4)
         return robot.true_x + robot._drift_accum[0], robot.true_y + robot._drift_accum[1]
@@ -224,13 +222,9 @@ def main():
     path         = []    # list of (x, y) world waypoints
     current_wp   = 0     # index in path
     last_replan  = 0.0   # time of last A* recompute
+    spoof_alerted = False  # tracks if we've already logged spoof divergence
     event_log    = EventLog(max_entries=10)
     event_log.start_time = time.time()
-    shake       = 0      # screen shake offset
-    blink_state = True   # for warning flasher
-
-    # Initial GPS reading
-    gps_pos = compute_gps_position(robot, gps_mode)
     event_log.log("SIMULATION STARTED — CLICK MAP TO SET GOAL")
 
     running = True
@@ -250,10 +244,10 @@ def main():
                     # Cycle GPS mode
                     idx = GPS_MODES.index(gps_mode)
                     gps_mode = GPS_MODES[(idx + 1) % len(GPS_MODES)]
-                    # Reset drift accumulators on mode changes
-                    if hasattr(robot, "_drift_acc"):
-                        robot._drift_acc = [0.0, 0.0]
+                    # Reset drift accumulator on mode changes
+                    robot._drift_accum[:] = 0
                     robot._spoof_offset = list(SPOOF_OFFSET)
+                    spoof_alerted = False  # reset spoof warning flag
                     event_log.log(f"GPS MODE → {gps_mode.upper()}")
                     # On mode switch, force an immediate replan
                     last_replan = 0.0
@@ -307,6 +301,7 @@ def main():
                         last_replan = now
                         event_log.log("PATH RECALCULATED (GPS UPDATE)")
                         needs_replan = True
+                        spoof_alerted = False  # allow fresh spoof alert for new path
                 else:
                     # Jammed — cannot replan
                     pass
