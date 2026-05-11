@@ -433,7 +433,9 @@ def main():
             lbl = FONT_SMALL.render("GPS:   NO FIX — JAMMED", True, (255,80,80))
         hud_surf.blit(lbl, (x_left, y)); y += 20
 
-        lbl = FONT_SMALL.render(f"NAV ERROR: {nav_error:.0f} px", True, (255,200,60) if nav_error > 50 else (160,200,255))
+        err_text = f"{nav_error:.0f} px" if not math.isinf(nav_error) else "--- px"
+        err_col  = (255,200,60) if not math.isinf(nav_error) and nav_error > 50 else (160,200,255)
+        lbl = FONT_SMALL.render(f"NAV ERROR: {err_text}", True, err_col)
         hud_surf.blit(lbl, (x_left, y)); y += 20
 
         lbl = FONT_SMALL.render(f"TARGET WP: {current_wp+1}/{len(path) if path else 0}", True, HUD_FG)
