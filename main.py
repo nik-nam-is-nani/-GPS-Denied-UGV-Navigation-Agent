@@ -13,6 +13,7 @@ Controls:
 import pygame, sys, math, time
 from map    import GridMap
 from robot  import Robot
+from astar  import astar
 
 # ── Colours ──────────────────────────────────────────────────────────────────
 BG          = (18,  18,  22)
@@ -101,6 +102,12 @@ def main():
     reached = False
     start_time = time.time()
     steps = 0
+
+    # Auto-pilot / pathfinding state
+    auto_pilot = False
+    path = []           # list of world (x, y) waypoints
+    current_wp = 0      # index into path
+    goal_px, goal_py = grid.tile_to_world_center(35, 25)
 
     while True:
         dt = clock.tick(60)
