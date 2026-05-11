@@ -77,6 +77,7 @@ def main():
     hud_surf  = pygame.Surface((W, HUD_H), pygame.SRCALPHA)
     ray_surf  = pygame.Surface((W, H),     pygame.SRCALPHA)
     trl_surf  = pygame.Surface((W, H),     pygame.SRCALPHA)
+    path_surf = pygame.Surface((W, H),     pygame.SRCALPHA)  # for planned path
 
     # Pre-draw static map
     for row in range(grid.rows):
@@ -126,18 +127,62 @@ def main():
                 if ev.key == pygame.K_r:
                     robot = Robot(start_px, start_py, heading=0.0)
                     reached = False
+                    auto_pilot = False
+                    path = []
+                    current_wp = 0
                     start_time = time.time()
                     steps = 0
+                    path_surf.fill((0,0,0,0))
                     trl_surf.fill((0,0,0,0))
+            if ev.type == pygame.MOUSEBUTTONDOWN and ev.button == 1:
+                mx, my = ev.pos
+                if my < H:  # ignore clicks on HUD
+                    # Convert click to tile
+                    tc = mx // grid.tile
+                    tr = my // grid.tile
+                    if not grid.is_wall(tc, tr):
+                        start_tile = grid.world_to_tile(robot.x, robot.y)
+                        goal_tile  = (tc, tr)
+                        path_tiles = astar(grid, start_tile, goal_tile)
+                        if path_tiles:
+                            path = [grid.tile_to_world_center(c, r) for c, r in path_tiles]
+                            current_wp = 0
+                            auto_pilot = True
+                            reached = False
+                        # clear previous path overlay
+                        path_surf.fill((0,0,0,0))
 
-        # ── Input ──────────────────────────────────────────────────────
-        keys = pygame.key.get_pressed()
+        # ── Input / Auto-pilot ────────────────────────────────────────
         throttle = 0.0
         steer    = 0.0
-        if keys[pygame.K_w] or keys[pygame.K_UP]:    throttle =  1.0
-        if keys[pygame.K_s] or keys[pygame.K_DOWN]:  throttle = -1.0
-        if keys[pygame.K_a] or keys[pygame.K_LEFT]:  steer    = -1.0
-        if keys[pygame.K_d] or keys[pygame.K_RIGHT]: steer    =  1.0
+
+        if auto_pilot and path and current_wp < len(path):
+            wp_x, wp_y = path[current_wp]
+            dx = wp_x - robot.x
+            dy = wp_y - robot.y
+            dist = math.hypot(dx, dy)
+
+            if dist < 10:  # waypoint reached
+                current_wp += 1
+                if current_wp >= len(path):
+                    auto_pilot = False
+                    reached = True
+            else:
+                # Desired heading
+                desired = math.atan2(dy, dx)
+                # Angle difference (handle wrap-around)
+                err = (desired - robot.heading + math.pi) % (2*math.pi) - math.pi
+                steer = max(-1.0, min(1.0, err * 3.0))  # P-controller
+                throttle = 1.0 if abs(err) < 0.5 else 0.5
+
+        else:
+            # Manual control only when not auto-piloting
+            if not auto_pilot:
+                keys = pygame.key.get_pressed()
+                if keys[pygame.K_w] or keys[pygame.K_UP]:    throttle =  1.0
+                if keys[pygame.K_s] or keys[pygame.K_DOWN]:  throttle = -1.0
+                if keys[pygame.K_a] or keys[pygame.K_LEFT]:  steer    = -1.0
+                if keys[pygame.K_d] or keys[pygame.K_RIGHT]: steer    =  1.0
 
         robot.update(throttle, steer, grid)
         steps += 1
