@@ -1,13 +1,19 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
-from stable_baselines3 import PPO
 import asyncio
 import json
 import numpy as np
 import os
+import sys
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+print("Importing stable_baselines3...")
+from stable_baselines3 import PPO
+print("Importing env...")
 from env.ugv_env import UGVNavEnv
+print("Imports complete")
 
 
 app = FastAPI(title="UGV GPS-Denied Navigation")
