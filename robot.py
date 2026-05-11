@@ -81,23 +81,16 @@ class Robot:
             self.true_trail.pop(0)
             self.odo_trail.pop(0)
 
-    # ------------------------------------------------------------------ GPS
-    def get_gps(self):
-        """Returns (x, y) | None depending on GPS mode."""
-        if self.gps_mode == "on":
-            # Clean GPS with tiny noise
-            noise = np.random.randn(2) * 0.8
-            return self.true_x + noise[0], self.true_y + noise[1]
-        elif self.gps_mode == "off":
-            return None
-        elif self.gps_mode == "spoof":
-            return self.true_x + self._spoof_offset[0], \
-                   self.true_y + self._spoof_offset[1]
-        elif self.gps_mode == "drift":
-            self._drift_accum += np.random.randn(2) * 0.4
-            return self.true_x + self._drift_accum[0], \
-                   self.true_y + self._drift_accum[1]
-        return None
+    # ------------------------------------------------------------------ rendering
+    def draw(self, surf, shake_x=0, shake_y=0):
+        """Draw the robot (true position) with a direction arrow."""
+        cx = int(self.x) + shake_x
+        cy = int(self.y) + shake_y
+        pygame.draw.circle(surf, ( 0, 170, 255), (cx, cy), self.radius)
+        pygame.draw.circle(surf, (255,255,255),        (cx, cy), self.radius, 2)
+        ex = cx + int(16 * math.cos(self.heading))
+        ey = cy + int(16 * math.sin(self.heading))
+        pygame.draw.line(surf, (255,255,255), (cx, cy), (ex, ey), 3)
 
     # ------------------------------------------------------------------ sensors
     def cast_rays(self, grid_map, num_rays=8, max_dist=150):
