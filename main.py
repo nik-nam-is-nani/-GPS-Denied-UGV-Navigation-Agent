@@ -227,6 +227,7 @@ def main():
     event_log.start_time = time.time()
     event_log.log("SIMULATION STARTED — CLICK MAP TO SET GOAL")
 
+    blink_state = False
     running = True
     while running:
         dt       = clock.tick(60)                       # cap 60 FPS
