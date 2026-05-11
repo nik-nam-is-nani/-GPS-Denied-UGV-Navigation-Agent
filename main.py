@@ -170,10 +170,10 @@ class EventLog:
         if len(self.entries) > self.max:
             self.entries.pop()
 
-    def draw(self, surf, font, y, col=(180, 220, 255)):
+    def draw(self, surf, font, x, y, col=(180, 220, 255)):
         for i, entry in enumerate(self.entries):
             lbl = font.render(entry, True, col)
-            surf.blit(lbl, (10, y + i * 16))
+            surf.blit(lbl, (x, y + i * 16))
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Main loop
