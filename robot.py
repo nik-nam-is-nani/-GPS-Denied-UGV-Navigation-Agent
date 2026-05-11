@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import pygame
 
 class Robot:
     def __init__(self, x, y, heading=0.0):
